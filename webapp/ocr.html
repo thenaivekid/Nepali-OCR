@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Upload Form</title>
+</head>
+<body>
+    <h1>Image Upload Form</h1>
+    <form id="upload_form" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+
+    <div id="image_preview"></div>
+    <div id="text_from_ocr"></div>
+    <script>
+        async function uploadImage() {
+
+            const form = document.getElementById("upload_form");
+            const formData = new FormData(form);
+            console.log("uploading to server");
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/ocr/", {
+                    method: "POST",
+                    
+                    body: formData,
+                });
+                console.log(response);
+                console.log(response.status);
+                const result = await response.json();
+                console.log(result);
+                if(response.status === 404){
+                    console.log("failed");
+                    console.log(result.detail);
+                }
+                else{
+                    console.log("success");
+                    console.log(result.text);
+                    console.log(result.image_url);
+                    document.getElementById("text_from_ocr").innerText = result.text;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("#upload_form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                uploadImage();
+            });
+        });
+    </script>
+</body>
+</html>
